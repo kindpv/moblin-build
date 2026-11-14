@@ -1,0 +1,40 @@
+From 5ebe9cf3b7680d97a6ab03909cc174186e295e10 Mon Sep 17 00:00:00 2001
+From: kindpv <167390939+kindpv@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 22:33:44 -0500
+Subject: [PATCH] Always use the official libsrt SRT implementation (supports
+ passphrase encryption)
+
+---
+ Moblin/Various/Model/ModelStream.swift       | 2 +-
+ Moblin/Various/Settings/SettingsStream.swift | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Moblin/Various/Model/ModelStream.swift b/Moblin/Various/Model/ModelStream.swift
+index 494384b29..01696887f 100644
+--- a/Moblin/Various/Model/ModelStream.swift
++++ b/Moblin/Various/Model/ModelStream.swift
+@@ -401,7 +401,7 @@ extension Model {
+             builtinAudioDelay: database.debug.builtinAudioAndVideoDelay,
+             attachDefaultAudio: !isChatPhone(),
+             destinations: stream.multiStreaming.destinations,
+-            srtImplementation: stream.srt.implementation,
++            srtImplementation: .official, // local build: always libsrt (the "Moblin" SRT ignores passphrase)
+             limitAdaptiveBitrateByTransportBitrate: stream.rateControl != .cbr,
+             colorRange: stream.colorRange
+         )
+diff --git a/Moblin/Various/Settings/SettingsStream.swift b/Moblin/Various/Settings/SettingsStream.swift
+index 7354686a4..ffef4cff3 100644
+--- a/Moblin/Various/Settings/SettingsStream.swift
++++ b/Moblin/Various/Settings/SettingsStream.swift
+@@ -518,7 +518,7 @@ class SettingsStreamSrt: Codable, ObservableObject {
+     var connectionPriorities: SettingsStreamSrtConnectionPriorities = .init()
+     var mpegtsPacketsPerPacketRemove: Int = 7
+     @Published var dnsLookupStrategy: SettingsDnsLookupStrategy = .system
+-    @Published var implementation: SettingsStreamSrtImplementation = .moblin
++    @Published var implementation: SettingsStreamSrtImplementation = .official
+     @Published var bigPackets: Bool = true
+     var bigPacketsMigrated: Bool = false
+     var implemenationMigrated: Bool = false
+-- 
+2.53.0
+

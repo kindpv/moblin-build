@@ -518,7 +518,7 @@ class SettingsStreamSrt: Codable, ObservableObject {
     var connectionPriorities: SettingsStreamSrtConnectionPriorities = .init()
     var mpegtsPacketsPerPacketRemove: Int = 7
     @Published var dnsLookupStrategy: SettingsDnsLookupStrategy = .system
-    @Published var implementation: SettingsStreamSrtImplementation = .moblin
+    @Published var implementation: SettingsStreamSrtImplementation = .official
     @Published var bigPackets: Bool = true
     var bigPacketsMigrated: Bool = false
     var implemenationMigrated: Bool = false

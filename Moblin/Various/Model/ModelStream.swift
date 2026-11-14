@@ -401,7 +401,7 @@ extension Model {
             builtinAudioDelay: database.debug.builtinAudioAndVideoDelay,
             attachDefaultAudio: !isChatPhone(),
             destinations: stream.multiStreaming.destinations,
-            srtImplementation: stream.srt.implementation,
+            srtImplementation: .official, // local build: always libsrt (the "Moblin" SRT ignores passphrase)
             limitAdaptiveBitrateByTransportBitrate: stream.rateControl != .cbr,
             colorRange: stream.colorRange
         )
