@@ -26,11 +26,22 @@ jobs:
           CAPABILITIES = free
           CFG
 
+      - name: Resolve packages
+        run: |
+          xcodebuild -project Moblin.xcodeproj -scheme Moblin -derivedDataPath build \
+            -skipPackagePluginValidation -skipMacroValidation -resolvePackageDependencies
+
+      - name: Patch VRMKit (local constant shadows skeleton(withSkinIndex:))
+        run: |
+          F=build/SourcePackages/checkouts/VRMKit/Sources/VRMRealityKit/Loading/GLTFSceneBuilder.swift
+          sed -i '' 's/let skeleton = try mesh.skinIndex.map { try skeleton(withSkinIndex: \$0) }/let skeleton = try mesh.skinIndex.map { try self.skeleton(withSkinIndex: $0) }/' "$F"
+          grep -n 'self.skeleton(withSkinIndex' "$F"
+
       - name: Build (unsigned)
         run: |
           xcodebuild -project Moblin.xcodeproj -scheme Moblin -configuration Release \
             -destination 'generic/platform=iOS' -derivedDataPath build \
-            -skipPackagePluginValidation -skipMacroValidation -quiet \
+            -skipPackagePluginValidation -skipMacroValidation -disableAutomaticPackageResolution -quiet \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
 
       - name: Package IPA (extensions removed for AltStore)
