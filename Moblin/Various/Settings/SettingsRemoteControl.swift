@@ -115,7 +115,7 @@ class SettingsRemoteControlServerRelay: Codable, ObservableObject {
         !bridgeId.isEmpty
     }
 
-    @Published var enabled: Bool = true
+    @Published var enabled: Bool = false
     @Published var baseUrl: String = "wss://moblin.mys-lang.org/moblin-remote-control-relay"
     @Published var bridgeId: String = UUID().uuidString.lowercased()
 
