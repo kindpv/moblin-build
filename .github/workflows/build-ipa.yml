@@ -1,0 +1,50 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  ipa:
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app | grep -vi beta | sort -V | tail -1)
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+
+      - name: User config
+        run: |
+          cat > Config/User.xcconfig <<'CFG'
+          DEVELOPMENT_TEAM =
+          BASE_PRODUCT_BUNDLE_IDENTIFIER = local.selfbuild.moblin
+          CAPABILITIES = free
+          CFG
+
+      - name: Build (unsigned)
+        run: |
+          xcodebuild -project Moblin.xcodeproj -scheme Moblin -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            -skipPackagePluginValidation -skipMacroValidation -quiet \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+
+      - name: Package IPA (extensions removed for AltStore)
+        run: |
+          APP=build/Build/Products/Release-iphoneos/Moblin.app
+          rm -rf Payload && mkdir Payload && cp -R "$APP" Payload/
+          rm -rf Payload/Moblin.app/PlugIns Payload/Moblin.app/Watch Payload/Moblin.app/Extensions
+          VER=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Payload/Moblin.app/Info.plist)
+          zip -qry "Moblin-$VER-$(git rev-parse --short HEAD).ipa" Payload
+          ls -lh *.ipa
+          shasum -a 256 *.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moblin-ipa
+          path: '*.ipa'
+          retention-days: 14
